@@ -1,0 +1,64 @@
+# ==============================================================================
+# Deployment: Express.js Backend API
+# ==============================================================================
+# Manages backend container lifecycle, environmental injection, resources, and probes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: event-portal
+  labels:
+    app: backend
+    tier: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: api
+    spec:
+      containers:
+        - name: backend
+          image: adityakarmakar/event-portal-backend:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
+          
+          # Inject all key-value pairs from ConfigMap and Secret into environment
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
+          
+          # Resource Allocation Requests and Limits
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+
+          # Liveness Probe: Restarts container if /api/health endpoint becomes unresponsive
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+
+          # Readiness Probe: Ensures backend is fully up and ready to serve traffic
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5

@@ -1,0 +1,53 @@
+# ==============================================================================
+# Kubernetes Job: Database Seeding Task
+# ==============================================================================
+# Executes a one-shot task using the backend container image to populate
+# default admin credentials and demo events in MongoDB.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-job
+  namespace: event-portal
+  labels:
+    app: seed
+    tier: database-init
+spec:
+  # Limits retry attempts to 3 in case of initial network/connection delay
+  backoffLimit: 3
+  
+  # Retains completed Job object for inspection, auto-cleans after 300s
+  ttlSecondsAfterFinished: 300
+  
+  template:
+    metadata:
+      labels:
+        app: seed
+    spec:
+      # Jobs require restartPolicy Never or OnFailure (Never prevents looping on completion)
+      restartPolicy: Never
+      
+      containers:
+        - name: seed
+          image: adityakarmakar/event-portal-backend:v1.0
+          imagePullPolicy: IfNotPresent
+          
+          # Executes the seed script instead of starting the Express HTTP server
+          command:
+            - node
+            - config/seed.js
+          
+          # Reuse existing ConfigMap and Secret for DB credentials and settings
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi

@@ -1,0 +1,20 @@
+# ==============================================================================
+# Service: Backend Internal ClusterIP Service
+# ==============================================================================
+# Exposes backend API internally to other cluster pods via stable DNS name 'backend'.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend # Service name 'backend' (resolves to backend.event-portal.svc.cluster.local)
+  namespace: event-portal
+  labels:
+    app: backend
+    tier: api
+spec:
+  type: ClusterIP # Internal cluster communication only
+  ports:
+    - port: 5000
+      targetPort: 5000
+      name: http
+  selector:
+    app: backend # Routes traffic to pods labeled 'app: backend'
