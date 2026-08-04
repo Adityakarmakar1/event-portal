@@ -1,0 +1,57 @@
+# ==============================================================================
+# Deployment: Nginx Web Server serving React SPA
+# ==============================================================================
+# Manages the Nginx container serving static frontend assets and reverse proxying /api to backend.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: event-portal
+  labels:
+    app: frontend
+    tier: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        tier: web
+    spec:
+      containers:
+        - name: frontend
+          image: adityakarmakar/event-portal-frontend:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+          
+          # Lightweight Nginx resource requirements
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
+          # Liveness Probe: Restarts container if Nginx worker process fails
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+
+          # Readiness Probe: Ensures Nginx is ready to serve HTML content
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
