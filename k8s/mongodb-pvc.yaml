@@ -1,0 +1,17 @@
+# ==============================================================================
+# PersistentVolumeClaim (PVC): MongoDB Storage
+# ==============================================================================
+# Requests persistent disk space from the Kubernetes cluster (Minikube dynamic provisioner)
+# to ensure MongoDB data persists even if the MongoDB Pod is restarted or rescheduled.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: event-portal
+spec:
+  # ReadWriteOnce (RWO): Volume can be mounted as read-write by a single node at a time.
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi # Allocates 2 Gigabytes of persistent storage

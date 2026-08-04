@@ -1,0 +1,71 @@
+# ==============================================================================
+# Deployment: MongoDB Database Server
+# ==============================================================================
+# Manages the lifecycle of the MongoDB pod, providing self-healing and volume mounting.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: event-portal
+  labels:
+    app: mongodb
+    tier: database
+spec:
+  replicas: 1 # Exactly 1 replica for single-instance database instance
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        tier: database
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:8 # Official MongoDB 8 image
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          
+          # Mount the persistent volume claim to MongoDB default data directory
+          volumeMounts:
+            - name: mongodb-storage
+              mountPath: /data/db
+          
+          # Resource requests and limits to ensure fair scheduling and stability
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          
+          # Health Probes: Ensures container health using official mongosh ping
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          livenessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+      
+      # Bind the volume to the PersistentVolumeClaim defined in mongodb-pvc.yaml
+      volumes:
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pvc

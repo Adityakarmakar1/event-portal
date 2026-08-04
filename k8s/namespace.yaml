@@ -1,0 +1,9 @@
+# ==============================================================================
+# Namespace Definition: event-portal
+# ==============================================================================
+# Isolates all resources (Pods, Services, PVCs, Deployments) for the Event Portal 
+# capstone project into a dedicated namespace to avoid collision with default/system workloads.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: event-portal

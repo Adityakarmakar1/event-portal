@@ -1,88 +1,102 @@
-# Nimbus — Event Management Portal
+# Event Portal
 
-A full-stack event portal with a React + Vite frontend and Express + MongoDB backend.
+A production-ready full-stack Event Management Portal containerized with Docker and orchestrated using Docker Compose.
 
-## Project structure
+## Tech Stack
 
-```
+- **Frontend:** React + Vite (Nginx for production serving)
+- **Backend:** Express.js (Node 22 Alpine)
+- **Database:** MongoDB (`mongo:8`)
+- **Authentication:** JWT (JSON Web Tokens) & bcryptjs
+- **Containerization:** Docker (Multi-stage builds)
+- **Orchestration:** Docker Compose
+
+## Features
+
+- **User Registration & Login:** Secure authentication with JWT.
+- **Event Booking System:** Browse, view details, and book events with capacity tracking.
+- **Admin Dashboard:** Manage events (Create, Update, Delete) with admin privileges.
+- **Automatic Database Seeding:** Autonomous one-shot initialization of demo admin user and initial events on container startup.
+- **Production-Ready Proxying:** Nginx reverse proxying for client-side API requests (`/api`).
+- **Health Checks & Resilience:** Container dependency ordering (`service_healthy` & `service_completed_successfully`).
+
+## Project Structure
+
+```text
 event-portal/
-├── frontend/          React + Vite
-│   └── src/pages/     Home, Login, Register, Events, Bookings, Admin Dashboard, 404
-└── backend/           Express API
-    ├── controllers/
-    ├── routes/
-    ├── models/
-    ├── middleware/
-    ├── config/
-    └── server.js
+├── docker-compose.yml     # Orchestrates MongoDB, Seed, Backend, and Frontend containers
+├── frontend/              # React + Vite application
+│   ├── Dockerfile         # Multi-stage build (Node 22 builder -> Nginx Alpine)
+│   ├── nginx.conf         # Nginx SPA fallback & /api reverse proxy config
+│   └── src/               # React components, pages, context, and API client
+└── backend/               # Express.js REST API
+    ├── Dockerfile         # Node 22 Alpine container specification
+    ├── config/            # Database connection & seed script
+    ├── controllers/       # Auth, Event, and Booking business logic
+    ├── middleware/        # JWT auth verification & error handling
+    ├── models/            # Mongoose schemas (User, Event, Booking)
+    └── server.js          # Express app entrypoint & healthcheck route
 ```
 
-## Prerequisites
+## Demo Credentials
 
-- Node.js 18+
-- MongoDB running locally (default: `mongodb://localhost:27017/nimbus`)
+- **Admin Account:** `admin@nimbus.app` / `admin123`
+- **Attendee:** Register a new user account via `/register`
 
-## Getting started
+## Run Locally
 
-### 1. Install dependencies
+Run the entire application stack using Docker Compose:
 
 ```bash
-npm run install:all
+docker compose up --build
 ```
 
-### 2. Configure the backend
+Access the applications:
+- **Frontend App:** [http://localhost:3000](http://localhost:3000)
+- **Backend Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
+
+## Docker
+
+### Stop the Application Stack
 
 ```bash
-cp backend/.env.example backend/.env
+docker compose down
 ```
 
-Edit `backend/.env` if needed. Defaults work for local development.
-
-### 3. Seed the database
+### Stop and Remove Persistent Volumes (Clean Reset)
 
 ```bash
-npm run seed
+docker compose down -v
 ```
 
-This creates sample events and an admin account.
-
-### 4. Run the app
-
-In one terminal:
+### Restart Existing Containers
 
 ```bash
-npm run dev:backend
+docker compose up
 ```
 
-In another terminal:
+### Check Running Service Logs
 
 ```bash
-npm run dev:frontend
+docker compose logs -f
 ```
 
-Open **http://localhost:5173**
+## API Overview
 
-## Demo credentials
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| `GET` | `/api/health` | Public | System health status check |
+| `POST` | `/api/auth/register` | Public | User registration |
+| `POST` | `/api/auth/login` | Public | User login & JWT issuance |
+| `GET` | `/api/auth/me` | Authenticated | Get logged-in user profile |
+| `GET` | `/api/events` | Public | List all available events |
+| `POST` | `/api/events` | Admin | Create a new event |
+| `PUT` | `/api/events/:id` | Admin | Update existing event details |
+| `DELETE` | `/api/events/:id` | Admin | Delete an event |
+| `GET` | `/api/bookings` | Authenticated | View current user's booked events |
+| `POST` | `/api/bookings` | Authenticated | Reserve tickets for an event |
+| `DELETE` | `/api/bookings/:id` | Authenticated | Cancel an existing booking |
 
-- **Admin:** `admin@nimbus.app` / `admin123`
-- **Attendee:** register a new account at `/register`
+## Version
 
-## API overview
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| POST | `/api/auth/register` | Create account |
-| POST | `/api/auth/login` | Sign in |
-| GET | `/api/auth/me` | Current user |
-| GET | `/api/events` | List events |
-| POST | `/api/events` | Create event (admin) |
-| PUT | `/api/events/:id` | Update event (admin) |
-| DELETE | `/api/events/:id` | Delete event (admin) |
-| GET | `/api/bookings` | User's bookings |
-| POST | `/api/bookings` | Book an event |
-| DELETE | `/api/bookings/:id` | Cancel booking |
-
-## Stack
-
-**Frontend:** React 18, Vite 5, React Router 6  
-**Backend:** Express, MongoDB, Mongoose, JWT, bcrypt
+`v1.0`

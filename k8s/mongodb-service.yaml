@@ -1,0 +1,21 @@
+# ==============================================================================
+# Service: MongoDB Internal Cluster Service
+# ==============================================================================
+# Provides stable internal cluster DNS entry 'mongodb' for the backend container.
+# ClusterIP exposes the service only inside the cluster for security.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb # Essential service name 'mongodb' (resolves to mongodb.event-portal.svc.cluster.local)
+  namespace: event-portal
+  labels:
+    app: mongodb
+    tier: database
+spec:
+  type: ClusterIP # Internal cluster access only (database is secure from external internet)
+  ports:
+    - port: 27017
+      targetPort: 27017
+      name: mongodb
+  selector:
+    app: mongodb # Directs traffic to pods labeled 'app: mongodb'
