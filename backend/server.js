@@ -21,7 +21,7 @@ app.use(
 app.use(express.json())
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' })
+  res.status(200).json({ status: 'OK' })
 })
 
 app.use('/api/auth', authRoutes)

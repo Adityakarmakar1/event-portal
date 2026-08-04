@@ -1,0 +1,78 @@
+name: event-portal
+
+services:
+  mongodb:
+    image: mongo:8
+    container_name: event-portal-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  seed:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: event-portal-seed
+    command: ["node", "config/seed.js"]
+    restart: "no"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: event-portal-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: event-portal-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

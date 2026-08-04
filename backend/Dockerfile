@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --chown=node:node package*.json ./
 
 # Install only production dependencies cleanly using 'npm ci' to guarantee deterministic builds
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy the rest of the backend application source code into the container
 # Ensure all files are owned by the non-root 'node' user
