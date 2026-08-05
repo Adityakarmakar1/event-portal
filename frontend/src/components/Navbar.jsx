@@ -37,12 +37,12 @@ export default function Navbar() {
               width: 34,
               height: 34,
               borderRadius: 10,
-              background: 'linear-gradient(135deg, var(--aurora-violet), var(--aurora-cyan))',
+              background: 'linear-gradient(135deg, var(--aurora-crimson), var(--aurora-coral))',
               display: 'grid',
               placeItems: 'center',
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
-              color: '#0a0d1f',
+              color: '#160407',
             }}
           >
             N
@@ -83,7 +83,7 @@ function NavItem({ to, children }) {
       style={({ isActive }) => ({
         fontSize: '0.9rem',
         fontWeight: 500,
-        color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
+        color: isActive ? 'var(--accent-coral)' : 'var(--text-muted)',
         transition: 'color 0.2s ease',
       })}
     >

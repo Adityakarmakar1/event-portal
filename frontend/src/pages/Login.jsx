@@ -39,13 +39,13 @@ export default function Login() {
               width: 44,
               height: 44,
               borderRadius: 13,
-              background: 'linear-gradient(135deg, var(--aurora-violet), var(--aurora-cyan))',
+              background: 'linear-gradient(135deg, var(--aurora-crimson), var(--aurora-coral))',
               display: 'grid',
               placeItems: 'center',
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
               fontSize: '1.2rem',
-              color: '#0a0d1f',
+              color: '#160407',
               marginBottom: '1rem',
             }}
           >
@@ -93,7 +93,7 @@ export default function Login() {
 
         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '1.4rem', textAlign: 'center' }}>
           No account?{' '}
-          <Link to="/register" style={{ color: 'var(--accent-cyan)' }}>
+          <Link to="/register" style={{ color: 'var(--accent-coral)' }}>
             Create one
           </Link>
         </p>

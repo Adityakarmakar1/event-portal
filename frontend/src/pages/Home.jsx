@@ -57,7 +57,7 @@ export default function Home() {
         <section>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.2rem' }}>
             <h2 style={{ fontSize: '1.3rem' }}>Coming up soon</h2>
-            <Link to="/events" style={{ fontSize: '0.85rem', color: 'var(--accent-cyan)' }}>
+            <Link to="/events" style={{ fontSize: '0.85rem', color: 'var(--accent-coral)' }}>
               View all &rarr;
             </Link>
           </div>
